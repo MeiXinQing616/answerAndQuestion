@@ -6,6 +6,7 @@
     <link rel="icon" href="../static/images/favicon.ico">
     <link rel="stylesheet" href="../static/css/index.css">
 </head>
+
 <body>
     <div class="chat_commento">
         <!-- top -->
@@ -16,36 +17,7 @@
         <div class="line"></div>
         <!-- middle -->
         <div class="chat_middle" id="chat_middle_item">
-             <!-- 左边 -->
-            <div class="chat_left clearfix">
-                <div class="chat_left_item_1 ">天乐</div>
-                <div class="chat_left_item_2">
-                    <div class="chat_time">18:57</div>
-                    <div class="chat_left_content">
-                        今天吃点啥？
-                    </div>
-                </div>
-            </div>
-            <!--右边 -->
-            <div class="chat_right">
-                <div class="chat_right_item_1 ">热巴</div>
-                <div class="chat_right_item_2 ">
-                    <div class="chat_right_time">18:59</div>
-                    <div class="chat_right_content">
-                        最近八合里周年庆店，咱们去薅羊毛呀
-                    </div>
-                </div>
-            </div>
-            <!-- l_2 -->
-            <div class="chat_left clearfix">
-                <div class="chat_left_item_1 ">天乐</div>
-                <div class="chat_left_item_2">
-                    <div class="chat_time">18:57</div>
-                    <div class="chat_left_content">
-                        行收拾一下走吧，早点去排个号
-                    </div>
-                </div>
-            </div>
+            
         </div>
         <!-- line -->
         <div class="line"></div>
@@ -58,26 +30,63 @@
     </div>
     <script>
         // 成功发送
-        var send_message=document.getElementById("chat_middle_item");
-        var domBtm=document.getElementById("button");
+        var send_message = document.getElementById("chat_middle_item");
+        var domBtm = document.getElementById("button");
         // 发送内容
-        var message=document.getElementById("chat_context_item");
-        domBtm.addEventListener("click",function(){
-            var str=message.value;
-            var date=new Date();
-            var hour=date.getHours();
-            var mm=date.getMinutes();
-            var time=hour+':'+mm;
-            var ans='<div class="chat_right_item_1 clearfix">热巴</div>'+
-                '<div class="chat_right_item_2">'+
-                    '<div class="chat_right_time clearfix">'+time+'</div>'+
-                    '<div class="chat_right_content clearfix">'+str+'</div>'
-                    +'</div>';
-            var oLi=document.createElement("div");
-            oLi.setAttribute("class","chat_right");
-            oLi.innerHTML=ans;
+        var message = document.getElementById("chat_context_item");
+        domBtm.addEventListener("click", function () {
+            var str = message.value;
+            var date = new Date();
+            var hour = date.getHours();
+            var mm = date.getMinutes();
+            var time = hour + ':' + mm;
+            var ans = '<div class="chat_right_item_1">用户</div>' +
+                '<div class="chat_right_item_2">' +
+                '<div class="chat_right_time">' + time + '</div>' +
+                '<div class="chat_right_content">' + str + '</div>'
+                + '</div>';
+            var oLi = document.createElement("div");
+            oLi.setAttribute("class", "chat_right");
+            oLi.setAttribute("id","user");
+            oLi.innerHTML = ans;
             send_message.append(oLi);
-            message.value="";
+
+        });
+        //回复消息
+        document.addEventListener('DOMNodeInserted', function (event) {
+            if(event.target.id=='user'){
+            var question = message.value;
+            message.value = "";
+            var date = new Date();
+            var hour = date.getHours();
+            var mm = date.getMinutes();
+            var time = hour + ':' + mm;
+            fetch('/reply', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    question: question
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    const reply = data.reply;
+
+                    // 添加回复到页面
+                    var ans = '<div class="chat_left_item_1 ">人工小智障</div>' +
+                        '<div class="chat_left_item_2">' +
+                        '<div class="chat_left_time">' + time + '</div>' +
+                        '<div class="chat_left_content">' + reply + '</div>' +
+                        '</div>';
+                    var oLi = document.createElement("div");
+                    oLi.setAttribute("class", "chat_left");
+                    oLi.innerHTML = ans;
+                    send_message.append(oLi);
+
+                });
+            }
         });
     </script>
 </body>
